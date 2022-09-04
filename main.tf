@@ -12,7 +12,7 @@ resource "aws_vpc" "vpc" {
 }
 
 /* public subent */
-resource "aws_subent" "public" { 
+resource "aws_subent" "public_subent" { 
 
     vpc_id     = aws.vpc_id
     count      = lenght(var.public_subnets_cidr)
@@ -27,7 +27,7 @@ resource "aws_subent" "public" {
 }
 
 /* private subnet */
-resource "aws_subnet" "private" {
+resource "aws_subnet" "private_subnet" {
 
     vpc_id            = aws_vpc.vpc.id
     count             = length(var.private_subnets_cidr)
@@ -53,13 +53,27 @@ resource "aws_internet_gateway" "igw" {
 }
 
 /* elastic ip for nat gateway */
-resource "aws_eip" "nat" {
+resource "aws_eip" "nat_eip" {
 
     vpc = true
     depends_on = [aws_internet_gateway.igw]
 
     tags = {
         Name        = "${var.project}-nat-eip"
+        Environment = "${var.environment}"
+    }
+
+}
+
+/* nat */
+resource "aws_nat_gateway" "nat" {
+
+    allocation_id = aws_eip.nat_eip.id
+    subnet_id     = element(aws_subnet.public_subnet.*.id, 0)
+    depends_on    = [aws_internet_gateway.igw]
+
+    tags = {
+        Name        = "${var.project}-nat"
         Environment = "${var.environment}"
     }
 
