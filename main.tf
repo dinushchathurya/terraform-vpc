@@ -1,5 +1,4 @@
 resource "aws_vpc" "vpc" {
-
     cidr_block           = "var.vpc_cidr"
     enable_dns_support   = true
     enable_dns_hostnames = true
@@ -8,12 +7,10 @@ resource "aws_vpc" "vpc" {
         Name        = "${var.project}-vpc",
         Environment = "${var.environment}"
     }
-
 }
 
 /* public subent */
 resource "aws_subent" "public_subent" { 
-
     vpc_id     = aws.vpc_id
     count      = lenght(var.public_subnets_cidr)
     cidr_block = element(var.public_subnets_cidr, count.index) 
@@ -28,7 +25,6 @@ resource "aws_subent" "public_subent" {
 
 /* private subnet */
 resource "aws_subnet" "private_subnet" {
-
     vpc_id            = aws_vpc.vpc.id
     count             = length(var.private_subnets_cidr)
     cidr_block        = element(var.private_subnets_cidr, count.index)
@@ -42,19 +38,16 @@ resource "aws_subnet" "private_subnet" {
 
 /* internet gateway for public subnet */
 resource "aws_internet_gateway" "igw" {
-
     vpc_id = aws_vpc.vpc.id
 
     tags = {
         Name        = "${var.project}-igw"
         Environment = "${var.environment}"
     }
-
 }
 
 /* elastic ip for nat gateway */
 resource "aws_eip" "nat_eip" {
-
     vpc = true
     depends_on = [aws_internet_gateway.igw]
 
@@ -62,12 +55,10 @@ resource "aws_eip" "nat_eip" {
         Name        = "${var.project}-nat-eip"
         Environment = "${var.environment}"
     }
-
 }
 
 /* nat */
 resource "aws_nat_gateway" "nat" {
-
     allocation_id = aws_eip.nat_eip.id
     subnet_id     = element(aws_subnet.public_subnet.*.id, 0)
     depends_on    = [aws_internet_gateway.igw]
@@ -76,5 +67,4 @@ resource "aws_nat_gateway" "nat" {
         Name        = "${var.project}-nat"
         Environment = "${var.environment}"
     }
-
 }
