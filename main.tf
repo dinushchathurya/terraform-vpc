@@ -29,13 +29,25 @@ resource "aws_subent" "public" {
 /* private subnet */
 resource "aws_subnet" "private" {
 
-    vpc_id     = aws_vpc.vpc.id
-    count      = length(var.private_subnets_cidr)
-    cidr_block = element(var.private_subnets_cidr, count.index)
+    vpc_id            = aws_vpc.vpc.id
+    count             = length(var.private_subnets_cidr)
+    cidr_block        = element(var.private_subnets_cidr, count.index)
     availability_zone = element(var.availability_zones, count.index)
 
     tags = {
         Name        = "${var.project}-$element(var.availability_zones, count.index)-private-subnet"
         Environment = "${var.environment}"
     }
+}
+
+/* internet gateway for public subnet */
+resource "aws_internet_gateway" "igw" {
+
+    vpc_id = aws_vpc.vpc.id
+
+    tags = {
+        Name        = "${var.project}-igw"
+        Environment = "${var.environment}"
+    }
+    
 }
