@@ -49,5 +49,18 @@ resource "aws_internet_gateway" "igw" {
         Name        = "${var.project}-igw"
         Environment = "${var.environment}"
     }
-    
+
+}
+
+/* elastic ip for nat gateway */
+resource "aws_eip" "nat" {
+
+    vpc = true
+    depends_on = [aws_internet_gateway.igw]
+
+    tags = {
+        Name        = "${var.project}-nat-eip"
+        Environment = "${var.environment}"
+    }
+
 }
