@@ -68,3 +68,33 @@ resource "aws_nat_gateway" "nat" {
         Environment = "${var.environment}"
     }
 }
+
+/* security group */
+resource "aws_security_group" "default" {
+    name        = "${var.project}-sg"
+    description = "Security group for ${var.project}"
+    vpc_id      = aws_vpc.vpc.id
+    depends_on  = [aws_vpc.vpc]
+
+    ingress {    
+        from_port        = 22
+        to_port          = 22
+        protocol         = "tcp"
+        self             = true
+        cidr_blocks      = ["0.0.0.0/0"]
+        ipv6_cidr_blocks = ["::/0"]
+    }
+
+    egress {
+        from_port        = 0
+        to_port          = 0
+        protocol         = "-1"
+        cidr_blocks      = ["0.0.0.0/0"]
+        ipv6_cidr_blocks = ["::/0"]
+    }
+
+    tags = {
+        Name        = "${var.project}-sg"
+        Environment = "${var.environment}"
+    }
+}
