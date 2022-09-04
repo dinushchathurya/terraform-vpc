@@ -1,4 +1,4 @@
-resource "aws_vpc" "demo" {
+resource "aws_vpc" "vpc" {
 
     cidr_block           = "var.vpc_cidr"
     enable_dns_support   = true
@@ -8,5 +8,20 @@ resource "aws_vpc" "demo" {
         Name        = "${var.project}-vpc",
         Environment = "${var.environment}"
     }
+
+}
+
+/* public subent */
+resource "aws_subent" "public" { 
+
+    vpc_id     = aws.vpc_id
+    count      = lenght(var.public_subnets_cidr)
+    cidr_block = elements(var.public_subnets_cidr, count.index) 
+    availability_zone = elements(var.availability_zones, count.index)
+    map_public_ip_on_launch = true
     
+    tags = { 
+        Name        = "${var.project}-$element(var.availability_zones, count.index)-public-subnet"
+        Environment = "${var.environment}"
+    }
 }
